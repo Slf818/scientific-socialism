@@ -1,12 +1,13 @@
 #!/usr/bin/env node
-// 论文校验脚本（固化第四轮验证基线，2026-08-15）
+// 论文校验脚本（固化第四轮验证基线，2026-08-15；第五检查 2026-08-30 增）
 // 用法：在论文目录下运行  node 校验脚本/check.mjs
-// 四项检查：字数（摘要/正文/结论）、引用首次出现顺序 1→70、两稿字节一致、目录正文标题对照（40条）
+// 五项检查：字数（摘要/正文/结论）、引用首次出现顺序 1→70、两稿字节一致、目录正文标题对照（40条）、CLAUDE.md 计数区核对
 // 全部通过 exit 0，任一失败 exit 1
 
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
+import { 核对计数区 } from './counts.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const 本体路径 = join(ROOT, '论雇佣劳动的废除与共产主义的制度起点.md')
@@ -77,6 +78,10 @@ const 多出 = 正文标题.filter((t) => !目录条目.includes(t))
 const 目录过 = 目录条目.length === 40 && 缺失.length === 0 && 多出.length === 0
 记('目录对照', 目录过,
   `目录 ${目录条目.length} 条（基线40）；正文缺失 ${缺失.length}${缺失.length ? '：' + 缺失.join('、') : ''}；正文多出 ${多出.length}${多出.length ? '：' + 多出.join('、') : ''}`)
+
+// ── 检查五：CLAUDE.md 计数区与磁盘一致 ──
+const 计数 = 核对计数区()
+记('计数核对', 计数.过, 计数.详情)
 
 // ── 输出 ──
 for (const { 名, 过, 详情 } of 结果)
