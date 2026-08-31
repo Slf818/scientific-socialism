@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 论文校验脚本（固化第四轮验证基线，2026-08-15；第五检查 2026-08-30 增）
-// 用法：在论文目录下运行  node 校验脚本/check.mjs
+// 用法：在项目根目录下运行  node 工作文件/校验脚本/check.mjs
 // 五项检查：字数（摘要/正文/结论）、引用首次出现顺序 1→70、两稿字节一致、目录正文标题对照（40条）、CLAUDE.md 计数区核对
 // 全部通过 exit 0，任一失败 exit 1
 
@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { 核对计数区 } from './counts.mjs'
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const 本体路径 = join(ROOT, '论雇佣劳动的废除与共产主义的制度起点.md')
 const 论文稿路径 = join(ROOT, '论雇佣劳动的废除与共产主义的制度起点（论文稿）.md')
 
@@ -40,7 +40,7 @@ const 摘要字数 = 汉字数(区间(摘要头 + 1, 关键词行))
 const 正文字数 = 汉字数(区间(正文头, 文献头))          // 第1章至第8章全含
 const 结论字数 = 汉字数(区间(第8章头, 文献头))          // 第8章单独计
 
-const 摘要基线 = 632, 正文基线 = 75753, 结论基线 = 1188  // 正文基线2026-08-30十订修订后更新（75208→75493）
+const 摘要基线 = 634, 正文基线 = 75792, 结论基线 = 1188  // 基线2026-08-30中介提法更替后更新（通道→中介）
 const 摘要过 = 摘要字数 >= 300 && 摘要字数 <= 2000  // 猫灯2026-08-30授权：摘要上限提高到2000（原650）
 const 正文过 = 正文字数 >= 12000
 const 结论过 = 结论字数 >= 400 && 结论字数 <= 2000  // 猫灯2026-08-30授权：结论上限提高到2000（原1200）
@@ -64,7 +64,7 @@ const 论文稿字节 = readFileSync(论文稿路径)
 const 两稿一致 = Buffer.compare(Buffer.from(本体, 'utf8'), 论文稿字节) === 0
 记('两稿同步', 两稿一致, `理论本体 ${Buffer.byteLength(本体, 'utf8')}B / 论文稿 ${论文稿字节.length}B`)
 
-// ── 检查四：目录与正文标题对照（38条） ──
+// ── 检查四：目录与正文标题对照（40条） ──
 const 标题式 = /^(第\d+章 .+|\d+\.\d+ .+)$/
 const 目录条目 = 行.slice(目录头 + 1, 目录尾)
   .map((l) => l.replace(/^[\s　]+/, '').trim())
